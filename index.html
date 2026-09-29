@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Comisiones · Tuhabi</title>
+<style>
+  :root{
+    --morado:#6C2BD9;
+    --morado-oscuro:#4B1F99;
+    --morado-claro:#EFE7FB;
+    --morado-claro2:#DCC9F7;
+    --blanco:#FFFFFF;
+    --gris-texto:#333333;
+    --gris-suave:#6B7280;
+    --verde-editable:#EAFBEF;
+    --verde-borde:#34C759;
+    --borde-radio:14px;
+    --sombra: 0 2px 10px rgba(76,31,153,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--blanco);
+    color: var(--gris-texto);
+    padding-bottom: 40px;
+  }
+  header{
+    background: linear-gradient(135deg, var(--morado), var(--morado-oscuro));
+    color: #fff;
+    padding: 20px 16px 16px;
+    text-align:center;
+  }
+  header h1{
+    margin:0 0 4px;
+    font-size: 1.4rem;
+    font-weight:700;
+  }
+  header p{
+    margin:0;
+    font-size:0.85rem;
+    opacity:0.9;
+  }
+  .container{
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .tab-btn{
+    flex:1;
+    padding:12px 8px;
+    border-radius: var(--borde-radio);
+    border: 2px solid var(--morado-claro2);
+    background: var(--morado-claro);
+    color: var(--morado-oscuro);
+    font-weight:600;
+    font-size:0.9rem;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .tab-btn.active{
+    background: var(--morado);
+    color:#fff;
+    border-color: var(--morado);
+  }
+  .intro{
+    background: var(--morado-claro);
+    border: 1px solid var(--morado-claro2);
+    border-radius: var(--borde-radio);
+    padding: 14px 16px;
+    font-size:0.88rem;
+    line-height:1.5;
+    margin-bottom:16px;
+    color: var(--gris-texto);
+  }
+  .intro strong{ color: var(--morado-oscuro); }
+  .aviso{
+    background: #FFF8E1;
+    border: 1px solid #F5D06B;
+    border-radius: var(--borde-radio);
+    padding: 12px 14px;
+    font-size:0.85rem;
+    margin-bottom:16px;
+    line-height:1.4;
+  }
+  .aviso.info{
+    background: var(--morado-claro);
+    border-color: var(--morado-claro2);
+  }
+  .aviso.error{
+    background: #FDECEC;
+    border-color: #F1A9A9;
+    color: #A32020;
+    font-weight:600;
+  }
+  .card{
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .card h2{
+    font-size:1rem;
+    margin:0 0 12px;
+    color: var(--morado-oscuro);
+  }
+  .field-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:4px;
+  }
+  .field{
+    flex:1 1 200px;
+  }
+  label{
+    display:block;
+    font-size:0.8rem;
+    font-weight:600;
+    color: var(--gris-suave);
+    margin-bottom:4px;
+  }
+  input[type="number"], select{
+    width:100%;
+    padding:10px 12px;
+    border-radius:10px;
+    border:2px solid var(--verde-borde);
+    background: var(--verde-editable);
+    font-size:1rem;
+    color: var(--gris-texto);
+    font-weight:600;
+  }
+  input[type="number"]:focus, select:focus{
+    outline:none;
+    border-color: var(--morado);
+  }
+  .badge-editable{
+    display:inline-block;
+    font-size:0.65rem;
+    background: var(--verde-borde);
+    color:#fff;
+    padding:1px 7px;
+    border-radius:8px;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.82rem;
+  }
+  th, td{
+    padding:8px 6px;
+    text-align:right;
+    border-bottom:1px solid #eee;
+  }
+  th:first-child, td:first-child{
+    text-align:left;
+  }
+  thead th{
+    background: var(--morado-claro);
+    color: var(--morado-oscuro);
+    font-size:0.75rem;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+  }
+  tbody tr:nth-child(even){
+    background: #FAF8FE;
+  }
+  tr.destacado td{
+    font-weight:700;
+    background: var(--morado-claro2) !important;
+    color: var(--morado-oscuro);
+  }
+  .resultado-final{
+    margin-top:14px;
+    padding:14px;
+    border-radius:10px;
+    background: var(--morado);
+    color:#fff;
+    text-align:center;
+    font-size:1.05rem;
+    font-weight:700;
+  }
+  .resultado-final span{
+    display:block;
+    font-size:0.75rem;
+    font-weight:500;
+    opacity:0.85;
+    margin-bottom:4px;
+  }
+  .info-dato{
+    display:flex;
+    justify-content:space-between;
+    background: var(--morado-claro);
+    border-radius:10px;
+    padding:10px 14px;
+    font-size:0.85rem;
+    margin-bottom:14px;
+    font-weight:600;
+    color: var(--morado-oscuro);
+  }
+  .table-wrap{ overflow-x:auto; }
+  @media (max-width:520px){
+    table{ font-size:0.72rem; }
+    th, td{ padding:6px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Calculadora de Comisiones · Tuhabi</h1>
+  <p>Red de brokers de franquicias Tuhabi</p>
+</header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab-btn" data-tab="cliente">Cuánto pide tu cliente</button>
+    <button class="tab-btn active" data-tab="comision">Calcula tu comisión</button>
+  </div>
+
+  <div class="intro">
+    Bienvenido a la calculadora de comisiones de propiedades captadas. ¡Consigue más visitas, más ofertas
+    y más cierres a través de la red de brokers de Tuhabi! Cada opción es diferente según la comisión y el
+    tipo de transacción, es decir, si se puede o no vender a través de HabiCredit100 (HC100).<br><br>
+    Para saber si puedes vender con HC100, pregúntate: <strong>¿la propiedad tiene un valor igual o menor
+    a $2,000,000 MXN, la captaste al 5% de comisión, y se puede vender con INFONAVIT?</strong> Si sí a las
+    tres, puedes usar HC100. Vender con HC100 te da <strong>1% adicional de comisión</strong> sobre el
+    valor de tu negociación.
+  </div>
+
+  <!-- ===================== VISTA 0: CUÁNTO PIDE TU CLIENTE (INVERSA) ===================== -->
+  <div id="vista-cliente" style="display:none;">
+    <div class="aviso">
+      <strong>¿Cuál es el valor mínimo que tu cliente puede aceptar por su propiedad?</strong>
+    </div>
+
+    <div class="card">
+      <h2>Datos de la operación</h2>
+      <div class="field-row">
+        <div class="field">
+          <label>Cuánto pide tu cliente (neto)<span class="badge-editable">editable</span></label>
+          <input type="number" id="cliente-monto" min="0" step="1000" value="1884000">
+        </div>
+        <div class="field">
+          <label>% Comisión pactada (para Sin HC100)<span class="badge-editable">editable</span></label>
+          <input type="number" id="cliente-comision" min="0" step="0.1" value="5">
+        </div>
+        <div class="field">
+          <label>Región (para Con HC100)<span class="badge-editable">editable</span></label>
+          <select id="cliente-region">
+            <option value="mexico">Todo México</option>
+            <option value="queretaro">Querétaro</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="cliente-error" class="aviso error" style="display:none;"></div>
+
+    <div id="cliente-resultados" style="display:none;">
+
+      <div class="card">
+        <h2>Sin HabiCredit100</h2>
+        <div class="resultado-final" style="margin-top:0; margin-bottom:14px;">
+          <span>Valor de publicación (Sin HC100)</span>
+          <div id="cliente-valor-sin">$0.00</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rol</th>
+                <th>% Comisión</th>
+                <th>Subtotal</th>
+                <th>IVA (16%)</th>
+                <th>Total a pagar</th>
+              </tr>
+            </thead>
+            <tbody id="cliente-sin-tbody"></tbody>
+          </table>
+        </div>
+        <div class="info-dato" style="margin-top:14px; margin-bottom:0;">
+          <span>Tu cliente recibe</span>
+          <span id="cliente-recibe-sin">$0.00</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Con HabiCredit100</h2>
+        <div class="resultado-final" style="margin-top:0; margin-bottom:14px;">
+          <span>Valor de publicación con HC100</span>
+          <div id="cliente-valor-con">$0.00</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rol</th>
+                <th>% Comisión</th>
+                <th>Subtotal</th>
+                <th>IVA (16%)</th>
+                <th>Total a pagar</th>
+              </tr>
+            </thead>
+            <tbody id="cliente-con-tbody"></tbody>
+          </table>
+        </div>
+        <div class="info-dato" style="margin-top:14px; margin-bottom:0;">
+          <span>Tu cliente recibe</span>
+          <span id="cliente-recibe-con">$0.00</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===================== VISTA 1: CALCULA TU COMISIÓN (SIN + CON HC100) ===================== -->
+  <div id="vista-comision">
+    <div class="aviso">
+      <strong>HC100 incluye:</strong> gastos de escrituración y avalúo (no incluye inscripción de crédito).
+      Te da <strong>1% de comisión adicional</strong>. El precio en la oferta final incrementa para pagar
+      gastos notariales y avalúo.
+    </div>
+
+    <div class="card">
+      <h2>Datos de la operación</h2>
+      <div class="field-row">
+        <div class="field">
+          <label>Precio de lista para publicación<span class="badge-editable">editable</span></label>
+          <input type="number" id="comision-precio" min="0" step="1000" value="2000000">
+        </div>
+        <div class="field">
+          <label>% Comisión pactada (para Sin HC100)<span class="badge-editable">editable</span></label>
+          <input type="number" id="comision-comision" min="0" step="0.1" value="5">
+        </div>
+        <div class="field">
+          <label>Región (para Con HC100)<span class="badge-editable">editable</span></label>
+          <select id="comision-region">
+            <option value="mexico">Todo México</option>
+            <option value="queretaro">Querétaro</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Sin HabiCredit100</h2>
+      <div id="comision-sin-error" class="aviso error" style="display:none;"></div>
+      <div id="comision-sin-aviso" class="aviso info" style="display:none;"></div>
+      <div id="comision-sin-resultados" style="display:none;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rol</th>
+                <th>% Comisión</th>
+                <th>Subtotal</th>
+                <th>IVA (16%)</th>
+                <th>Total a pagar</th>
+              </tr>
+            </thead>
+            <tbody id="comision-sin-tbody"></tbody>
+          </table>
+        </div>
+        <div class="resultado-final">
+          <span>Tu cliente recibe al final</span>
+          <div id="comision-sin-cliente-recibe">$0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Con HabiCredit100</h2>
+      <div id="comision-con-error" class="aviso error" style="display:none;"></div>
+      <div id="comision-con-resultados">
+        <div class="info-dato">
+          <span>Precio + HC100</span>
+          <span id="comision-con-precio-hc"> $0.00</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rol</th>
+                <th>% Comisión</th>
+                <th>Subtotal</th>
+                <th>IVA (16%)</th>
+                <th>Total a pagar</th>
+              </tr>
+            </thead>
+            <tbody id="comision-con-tbody"></tbody>
+          </table>
+        </div>
+        <div class="resultado-final">
+          <span>Tu cliente recibe al final</span>
+          <div id="comision-con-cliente-recibe">$0.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     CONSTANTES DE NEGOCIO — ajustar aquí si cambian las reglas
+     ========================================================= */
+  const IVA = 0.16;                    // IVA aplicado a toda comisión
+  const COMISION_MIN = 4;              // % mínimo de comisión permitido (Vista 1)
+  const COMISION_SPLIT_FIJO = 5;       // % en el que aplica el split fijo (Escenario A)
+  const VENDEDOR_PCT_A = 2;            // % vendedor en Escenario A (split fijo)
+  const CAPTADOR_PCT_A = 2;            // % captador en Escenario A (split fijo)
+  const TUHABI_PCT_A = 1;              // % Tuhabi en Escenario A (split fijo)
+  const VENDEDOR_PCT_B = 1.5;          // % vendedor fijo Escenario B (4% <= com < 5%)
+  const VENDEDOR_PCT_C = 2;            // % vendedor fijo Escenario C (com > 5%)
+  const TUHABI_PCT_EXCEDENTE = 20;     // % que se lleva Tuhabi sobre el total a pagar (Escenarios B y C)
+
+  const HC100_UMBRAL_PRECIO = 2000000; // umbral de precio para elegibilidad HC100
+  const HC100_COMISION_ELEGIBLE = 5;   // % de comisión requerido para elegibilidad HC100
+  const HC100_INCREMENTO_MEXICO = 8;   // % incremento de precio, todo México
+  const HC100_INCREMENTO_QRO = 11;     // % incremento de precio, Querétaro
+  const HC100_VENDEDOR_PCT = 2;        // % vendedor sobre Precio + HC100
+  const HC100_CAPTADOR_PCT = 2;        // % captador sobre precio original
+  const HC100_ADICIONAL_PCT = 1;       // % comisión adicional que da HC100
+
+  /* ================= Helpers de formato ================= */
+  const mxn = new Intl.NumberFormat('es-MX', { style:'currency', currency:'MXN', minimumFractionDigits:2, maximumFractionDigits:2 });
+  function fmtMoney(n){ return mxn.format(isFinite(n) ? n : 0); }
+  function fmtPct(n){
+    if(!isFinite(n)) return '0%';
+    const rounded = Math.round(n*100)/100;
+    return (Number.isInteger(rounded) ? rounded.toFixed(1) : rounded.toFixed(2)).replace(/0$/,'0') + '%';
+  }
+  function calcFila(base, pct){
+    const subtotal = base * (pct/100);
+    const iva = subtotal * IVA;
+    return { pct, subtotal, iva, total: subtotal + iva };
+  }
+  function filaHTML(nombre, fila){
+    return `<tr><td>${nombre}</td><td>${fmtPct(fila.pct)}</td><td>${fmtMoney(fila.subtotal)}</td><td>${fmtMoney(fila.iva)}</td><td>${fmtMoney(fila.total)}</td></tr>`;
+  }
+  function filaDestacadaHTML(nombre, fila){
+    return `<tr class="destacado"><td>${nombre}</td><td>${fmtPct(fila.pct)}</td><td>${fmtMoney(fila.subtotal)}</td><td>${fmtMoney(fila.iva)}</td><td>${fmtMoney(fila.total)}</td></tr>`;
+  }
+  function filaHTMLsinPct(nombre, fila){
+    return `<tr><td>${nombre}</td><td>${fmtMoney(fila.subtotal)}</td><td>${fmtMoney(fila.iva)}</td><td>${fmtMoney(fila.total)}</td></tr>`;
+  }
+  function filaDestacadaHTMLsinPct(nombre, fila){
+    return `<tr class="destacado"><td>${nombre}</td><td>${fmtMoney(fila.subtotal)}</td><td>${fmtMoney(fila.iva)}</td><td>${fmtMoney(fila.total)}</td></tr>`;
+  }
+
+  /* ================= Tabs ================= */
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const vistaCliente = document.getElementById('vista-cliente');
+  const vistaComision = document.getElementById('vista-comision');
+  const vistasPorTab = { cliente: vistaCliente, comision: vistaComision };
+  tabBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      Object.keys(vistasPorTab).forEach(key=>{
+        vistasPorTab[key].style.display = (key === btn.dataset.tab) ? '' : 'none';
+      });
+    });
+  });
+
+  /* ================= CALCULA TU COMISIÓN (SIN + CON HC100) ================= */
+  const comisionPrecioEl = document.getElementById('comision-precio');
+  const comisionComisionEl = document.getElementById('comision-comision');
+  const comisionRegionEl = document.getElementById('comision-region');
+
+  const sinErrorEl = document.getElementById('comision-sin-error');
+  const sinAvisoEl = document.getElementById('comision-sin-aviso');
+  const sinResultadosEl = document.getElementById('comision-sin-resultados');
+  const sinTbody = document.getElementById('comision-sin-tbody');
+  const sinClienteRecibe = document.getElementById('comision-sin-cliente-recibe');
+
+  function esElegibleHC100(precio, comision){
+    return precio <= HC100_UMBRAL_PRECIO && comision === HC100_COMISION_ELEGIBLE;
+  }
+
+  // Cálculo puro Sin HC100: dado un precio y una comisión ya validados (comision >= COMISION_MIN),
+  // regresa el desglose completo. Reutilizado por la vista "Sin HC100" y por "Cuánto pide tu cliente".
+  function calcularSinResultado(precio, comision){
+    let vendedor, captador, tuhabi, comisionTotal, avisoTexto;
+
+    if(comision === COMISION_SPLIT_FIJO){
+      vendedor = calcFila(precio, VENDEDOR_PCT_A);
+      captador = calcFila(precio, CAPTADOR_PCT_A);
+      tuhabi = calcFila(precio, TUHABI_PCT_A);
+      comisionTotal = calcFila(precio, COMISION_SPLIT_FIJO);
+
+      if(esElegibleHC100(precio, comision)){
+        avisoTexto = 'Esta propiedad es elegible para venderse con HabiCredit100. Revisa la pestaña "Con HabiCredit100" para ver la comisión adicional.';
+      } else {
+        avisoTexto = 'Negociaste una comisión del 5%, pero la propiedad NO se puede vender con INFONAVIT o vale más de $2,000,000 MXN, por lo que no aplica para HC100.';
+      }
+    } else if(comision >= COMISION_MIN && comision < COMISION_SPLIT_FIJO){
+      comisionTotal = calcFila(precio, comision);
+      vendedor = calcFila(precio, VENDEDOR_PCT_B);
+      const tuhabiMonto = comisionTotal.total * (TUHABI_PCT_EXCEDENTE/100);
+      const tuhabiPctEquivalente = precio > 0 ? (tuhabiMonto / (1+IVA)) / precio * 100 : 0;
+      tuhabi = { pct: tuhabiPctEquivalente, subtotal: tuhabiMonto/(1+IVA), iva: tuhabiMonto - (tuhabiMonto/(1+IVA)), total: tuhabiMonto };
+      const captadorTotal = comisionTotal.total - vendedor.total - tuhabi.total;
+      const captadorPctEquivalente = precio > 0 ? (captadorTotal/(1+IVA))/precio*100 : 0;
+      captador = { pct: captadorPctEquivalente, subtotal: captadorTotal/(1+IVA), iva: captadorTotal - (captadorTotal/(1+IVA)), total: captadorTotal };
+
+      avisoTexto = 'Captaste una propiedad con una comisión menor al 5%. Esta propiedad NO se puede vender a través de HC100.';
+    } else {
+      comisionTotal = calcFila(precio, comision);
+      vendedor = calcFila(precio, VENDEDOR_PCT_C);
+      const tuhabiMonto = comisionTotal.total * (TUHABI_PCT_EXCEDENTE/100);
+      const tuhabiPctEquivalente = precio > 0 ? (tuhabiMonto / (1+IVA)) / precio * 100 : 0;
+      tuhabi = { pct: tuhabiPctEquivalente, subtotal: tuhabiMonto/(1+IVA), iva: tuhabiMonto - (tuhabiMonto/(1+IVA)), total: tuhabiMonto };
+      const captadorTotal = comisionTotal.total - vendedor.total - tuhabi.total;
+      const captadorPctEquivalente = precio > 0 ? (captadorTotal/(1+IVA))/precio*100 : 0;
+      captador = { pct: captadorPctEquivalente, subtotal: captadorTotal/(1+IVA), iva: captadorTotal - (captadorTotal/(1+IVA)), total: captadorTotal };
+
+      avisoTexto = 'Captaste una propiedad con una comisión mayor al 5%. Esta propiedad NO se puede vender a través de HC100.';
+    }
+
+    const siCaptasVendes = {
+      pct: vendedor.pct + captador.pct,
+      subtotal: vendedor.subtotal + captador.subtotal,
+      iva: vendedor.iva + captador.iva,
+      total: vendedor.total + captador.total
+    };
+
+    return { vendedor, captador, tuhabi, comisionTotal, siCaptasVendes, avisoTexto };
+  }
+
+  function calcularSin(){
+    const precio = parseFloat(comisionPrecioEl.value);
+    const comision = parseFloat(comisionComisionEl.value);
+
+    sinErrorEl.style.display = 'none';
+    sinAvisoEl.style.display = 'none';
+    sinResultadosEl.style.display = 'none';
+
+    if(!isFinite(precio) || precio <= 0 || !isFinite(comision) || comision < 0){
+      sinErrorEl.textContent = 'Ingresa un precio y un % de comisión válidos (mayores a cero).';
+      sinErrorEl.style.display = '';
+      return;
+    }
+    if(comision < COMISION_MIN){
+      sinErrorEl.textContent = `La comisión mínima es ${COMISION_MIN}%.`;
+      sinErrorEl.style.display = '';
+      return;
+    }
+
+    const r = calcularSinResultado(precio, comision);
+
+    sinTbody.innerHTML =
+      filaHTML('Vendedor', r.vendedor) +
+      filaHTML('Captador', r.captador) +
+      filaHTML('Tuhabi', r.tuhabi) +
+      filaDestacadaHTML('Si captas y vendes', r.siCaptasVendes) +
+      filaDestacadaHTML('Comisión total', r.comisionTotal);
+
+    sinClienteRecibe.textContent = fmtMoney(precio - r.comisionTotal.total);
+
+    sinAvisoEl.textContent = r.avisoTexto;
+    sinAvisoEl.style.display = '';
+    sinResultadosEl.style.display = '';
+  }
+
+  const conErrorEl = document.getElementById('comision-con-error');
+  const conResultadosEl = document.getElementById('comision-con-resultados');
+  const conPrecioHcEl = document.getElementById('comision-con-precio-hc');
+  const conTbody = document.getElementById('comision-con-tbody');
+  const conClienteRecibe = document.getElementById('comision-con-cliente-recibe');
+
+  // Cálculo puro Con HC100: dado un precio original (antes de HC100) y una región, regresa el
+  // desglose completo. Reutilizado por la vista "Con HC100" y por "Cuánto pide tu cliente".
+  function calcularConResultado(precio, region){
+    const incrementoPct = region === 'queretaro' ? HC100_INCREMENTO_QRO : HC100_INCREMENTO_MEXICO;
+    const precioHC = precio * (1 + incrementoPct/100);
+    const totalPct = HC100_COMISION_ELEGIBLE + incrementoPct;
+
+    const vendedor = calcFila(precioHC, HC100_VENDEDOR_PCT);
+    const captador = calcFila(precio, HC100_CAPTADOR_PCT);
+    const comisionHC100 = calcFila(precio, HC100_ADICIONAL_PCT);
+    const tuhabi = calcFila(precio, incrementoPct);
+
+    // Comisión total: se calcula sobre el Precio + HC100 (no sobre el precio original).
+    const comisionTotal = calcFila(precioHC, totalPct);
+
+    // Si captas y vendes: suma de los subtotales de Vendedor (sobre Precio+HC100) + Captador + Comisión x HC100.
+    const siCaptasVendesSubtotal = vendedor.subtotal + captador.subtotal + comisionHC100.subtotal;
+    const siCaptasVendesIva = siCaptasVendesSubtotal * IVA;
+    const siCaptasVendes = {
+      pct: HC100_CAPTADOR_PCT + HC100_VENDEDOR_PCT + HC100_ADICIONAL_PCT,
+      subtotal: siCaptasVendesSubtotal,
+      iva: siCaptasVendesIva,
+      total: siCaptasVendesSubtotal + siCaptasVendesIva
+    };
+
+    const captadorTotalHC100 = {
+      pct: captador.pct + comisionHC100.pct,
+      subtotal: captador.subtotal + comisionHC100.subtotal,
+      iva: captador.iva + comisionHC100.iva,
+      total: captador.total + comisionHC100.total
+    };
+
+    return { precioHC, vendedor, captador, comisionHC100, tuhabi, comisionTotal, siCaptasVendes, captadorTotalHC100 };
+  }
+
+  function calcularCon(){
+    const precio = parseFloat(comisionPrecioEl.value);
+    const region = comisionRegionEl.value;
+
+    conErrorEl.style.display = 'none';
+    conResultadosEl.style.display = '';
+
+    if(!isFinite(precio) || precio <= 0){
+      conErrorEl.textContent = 'Ingresa un precio válido (mayor a cero).';
+      conErrorEl.style.display = '';
+      conResultadosEl.style.display = 'none';
+      return;
+    }
+
+    const r = calcularConResultado(precio, region);
+
+    conPrecioHcEl.textContent = fmtMoney(r.precioHC);
+
+    conTbody.innerHTML =
+      filaHTML('Vendedor', r.vendedor) +
+      filaHTML('Captador (por captación)', r.captador) +
+      filaHTML('Comisión x HC100 (por vender con HC100)', r.comisionHC100) +
+      filaDestacadaHTML('Comisión total captador (captación + HC100)', r.captadorTotalHC100) +
+      filaDestacadaHTML('Si captas y vendes', r.siCaptasVendes);
+      // "Comisión total con HC100" se sigue calculando (r.comisionTotal) para "Tu cliente recibe al final",
+      // solo se ocultó la fila de la tabla.
+
+    conClienteRecibe.textContent = fmtMoney(r.precioHC - r.comisionTotal.total);
+  }
+
+  function calcularComision(){
+    calcularSin();
+    calcularCon();
+  }
+
+  comisionPrecioEl.addEventListener('input', calcularComision);
+  comisionComisionEl.addEventListener('input', calcularSin);
+  comisionRegionEl.addEventListener('change', calcularCon);
+
+  /* ================= VISTA 0: CUÁNTO PIDE TU CLIENTE (INVERSA) ================= */
+  const clienteMontoEl = document.getElementById('cliente-monto');
+  const clienteComisionEl = document.getElementById('cliente-comision');
+  const clienteRegionEl = document.getElementById('cliente-region');
+  const clienteErrorEl = document.getElementById('cliente-error');
+  const clienteResultadosEl = document.getElementById('cliente-resultados');
+  const clienteValorSinEl = document.getElementById('cliente-valor-sin');
+  const clienteSinTbody = document.getElementById('cliente-sin-tbody');
+  const clienteRecibeSinEl = document.getElementById('cliente-recibe-sin');
+  const clienteValorConEl = document.getElementById('cliente-valor-con');
+  const clienteConTbody = document.getElementById('cliente-con-tbody');
+  const clienteRecibeConEl = document.getElementById('cliente-recibe-con');
+
+  function calcularCliente(){
+    const monto = parseFloat(clienteMontoEl.value);
+    const comision = parseFloat(clienteComisionEl.value);
+    const region = clienteRegionEl.value;
+
+    clienteErrorEl.style.display = 'none';
+    clienteResultadosEl.style.display = '';
+
+    if(!isFinite(monto) || monto <= 0){
+      clienteErrorEl.textContent = 'Ingresa un monto válido (mayor a cero) de lo que pide tu cliente.';
+      clienteErrorEl.style.display = '';
+      clienteResultadosEl.style.display = 'none';
+      return;
+    }
+    if(!isFinite(comision) || comision < COMISION_MIN){
+      clienteErrorEl.textContent = `La comisión mínima para el escenario Sin HC100 es ${COMISION_MIN}%.`;
+      clienteErrorEl.style.display = '';
+      clienteResultadosEl.style.display = 'none';
+      return;
+    }
+
+    // ---- Sin HC100 (inverso): Precio = ClienteRecibe / (1 - %Comisión x 1.16) ----
+    const comisionFrac = comision/100;
+    const denomSin = 1 - comisionFrac*(1+IVA);
+    if(denomSin <= 0){
+      clienteErrorEl.textContent = 'La comisión ingresada es demasiado alta para calcular un precio de publicación (Sin HC100).';
+      clienteErrorEl.style.display = '';
+      clienteResultadosEl.style.display = 'none';
+      return;
+    }
+    const precioSin = monto / denomSin;
+    const rSin = calcularSinResultado(precioSin, comision);
+
+    // ---- Con HC100 (inverso): PrecioHC = ClienteRecibe / (1 - %TotalHC100 x 1.16) ----
+    const incrementoPct = region === 'queretaro' ? HC100_INCREMENTO_QRO : HC100_INCREMENTO_MEXICO;
+    const totalFrac = (HC100_COMISION_ELEGIBLE + incrementoPct)/100;
+    const denomCon = 1 - totalFrac*(1+IVA);
+    if(denomCon <= 0){
+      clienteErrorEl.textContent = 'No fue posible calcular el precio de publicación con HC100.';
+      clienteErrorEl.style.display = '';
+      clienteResultadosEl.style.display = 'none';
+      return;
+    }
+    const precioHCNecesario = monto / denomCon;
+    const precioConOriginal = precioHCNecesario / (1 + incrementoPct/100);
+    const rCon = calcularConResultado(precioConOriginal, region);
+
+    clienteValorSinEl.textContent = fmtMoney(precioSin);
+    clienteSinTbody.innerHTML =
+      filaHTML('Vendedor', rSin.vendedor) +
+      filaHTML('Captador', rSin.captador) +
+      filaHTML('Tuhabi', rSin.tuhabi) +
+      filaDestacadaHTML('Si captas y vendes', rSin.siCaptasVendes) +
+      filaDestacadaHTML('Comisión total', rSin.comisionTotal);
+    clienteRecibeSinEl.textContent = fmtMoney(precioSin - rSin.comisionTotal.total);
+
+    clienteValorConEl.textContent = fmtMoney(rCon.precioHC);
+    clienteConTbody.innerHTML =
+      filaHTML('Vendedor', rCon.vendedor) +
+      filaHTML('Captador (por captación)', rCon.captador) +
+      filaHTML('Comisión x HC100 (por vender con HC100)', rCon.comisionHC100) +
+      filaDestacadaHTML('Comisión total captador (captación + HC100)', rCon.captadorTotalHC100) +
+      filaDestacadaHTML('Si captas y vendes', rCon.siCaptasVendes);
+    clienteRecibeConEl.textContent = fmtMoney(rCon.precioHC - rCon.comisionTotal.total);
+  }
+
+  clienteMontoEl.addEventListener('input', calcularCliente);
+  clienteComisionEl.addEventListener('input', calcularCliente);
+  clienteRegionEl.addEventListener('change', calcularCliente);
+
+  /* ================= Inicial ================= */
+  calcularCliente();
+  calcularSin();
+  calcularCon();
+})();
+</script>
+
+</body>
+</html>
